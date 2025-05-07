@@ -10,6 +10,11 @@ import {
   getDocumentHistory,
 } from "../../services/api";
 import { Document, HistoryEntry } from "../../types";
+import {
+  ArrowLeftIcon,
+  CheckCircleIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 export default function DocumentDetailPage({
   params,
@@ -73,9 +78,10 @@ export default function DocumentDetailPage({
       <div className="mb-6">
         <button
           onClick={() => router.back()}
-          className="text-indigo-600 hover:text-indigo-800"
+          className="text-indigo-600 hover:text-indigo-800 flex items-center gap-2"
         >
-          ← Back to Documents
+          <ArrowLeftIcon className="h-5 w-5" />
+          Back to Documents
         </button>
       </div>
 
@@ -95,17 +101,19 @@ export default function DocumentDetailPage({
             </p>
           </div>
           {user?.role === "ADMIN" && document.status === "PENDING" && (
-            <div className="space-x-2">
+            <div className="space-x-2 flex">
               <button
                 onClick={handleApprove}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2"
               >
+                <CheckCircleIcon className="h-5 w-5" />
                 Approve
               </button>
               <button
                 onClick={handleReject}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2"
               >
+                <XMarkIcon className="h-5 w-5" />
                 Reject
               </button>
             </div>

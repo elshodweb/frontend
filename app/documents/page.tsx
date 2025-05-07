@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../contexts/AuthContext";
 import { getDocuments, createDocument } from "../services/api";
 import { Document } from "../types";
+import {
+  DocumentIcon,
+  PencilIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 export default function DocumentsPage() {
   const { user } = useAuth();
@@ -52,8 +57,9 @@ export default function DocumentsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 flex items-center gap-2"
         >
+          <DocumentIcon className="h-5 w-5" />
           Create Document
         </button>
       </div>
@@ -61,52 +67,69 @@ export default function DocumentsPage() {
       {error && <div className="text-red-600 mb-4">{error}</div>}
 
       {showCreateForm && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl relative">
             <h2 className="text-xl font-bold mb-4 text-gray-900">
               Create New Document
             </h2>
             <form onSubmit={handleCreateDocument}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-900">
+              <div className="mb-4 relative">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   Title
                 </label>
-                <input
-                  type="text"
-                  value={newDocument.title}
-                  onChange={(e) =>
-                    setNewDocument({ ...newDocument, title: e.target.value })
-                  }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-gray-900"
-                  required
-                />
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <DocumentIcon className="h-5 w-5 text-gray-400" />
+                  </span>
+                  <input
+                    type="text"
+                    value={newDocument.title}
+                    onChange={(e) =>
+                      setNewDocument({ ...newDocument, title: e.target.value })
+                    }
+                    className="pl-10 pr-4 py-2 block w-full rounded-lg border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-gray-900 placeholder-gray-400 transition-all outline-none"
+                    placeholder="Enter document title"
+                    required
+                  />
+                </div>
               </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-900">
+              <div className="mb-4 relative">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   Content
                 </label>
-                <textarea
-                  value={newDocument.content}
-                  onChange={(e) =>
-                    setNewDocument({ ...newDocument, content: e.target.value })
-                  }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-gray-900"
-                  rows={4}
-                  required
-                />
+                <div className="relative">
+                  <span className="absolute top-2 left-0 pl-3 flex items-start pointer-events-none">
+                    <PencilIcon className="h-5 w-5 text-gray-400" />
+                  </span>
+                  <textarea
+                    value={newDocument.content}
+                    onChange={(e) =>
+                      setNewDocument({
+                        ...newDocument,
+                        content: e.target.value,
+                      })
+                    }
+                    className="pl-10 pr-4 py-2 block w-full rounded-lg border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-gray-900 placeholder-gray-400 transition-all outline-none resize-none"
+                    rows={4}
+                    placeholder="Enter document content"
+                    required
+                  />
+                </div>
               </div>
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
-                  className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                 >
+                  <XMarkIcon className="h-5 w-5" />
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 flex items-center gap-2"
                 >
+                  <DocumentIcon className="h-5 w-5" />
                   Create
                 </button>
               </div>
