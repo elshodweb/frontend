@@ -1,29 +1,30 @@
 export interface User {
-  id: string;
-  email: string;
+  _id: string;
   name: string;
-  role: "admin" | "user";
+  email: string;
+  role: "user" | "approver";
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Document {
   _id: string;
   title: string;
   content: string;
-  status: "draft" | "pending" | "approved" | "rejected";
-  createdBy: string;
+  status: "pending" | "approved" | "rejected";
+  createdBy: User;
+  blockchainTx?: string;
   createdAt: string;
   updatedAt: string;
-  __v: number;
 }
 
 export interface HistoryEntry {
   _id: string;
-  documentId: string;
-  userId: string;
+  document: string;
+  action: "create" | "approve" | "reject";
   user: User;
-  action: "UPLOAD" | "VIEW" | "APPROVE" | "REJECT";
+  blockchainTx?: string;
   timestamp: string;
-  blockchainTx: string;
 }
 
 export interface LoginCredentials {
@@ -34,11 +35,4 @@ export interface LoginCredentials {
 export interface ApiError {
   message: string;
   status: number;
-}
-
-export interface ApiResponse<T> {
-  status: number;
-  data: T;
-  timestamp: string;
-  path: string;
 }

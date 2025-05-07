@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import {
@@ -9,15 +9,22 @@ import {
   rejectDocument,
   getDocumentHistory,
 } from "../../services/api";
-import { Document, HistoryEntry } from "../../types";
+import type { Document, HistoryEntry } from "../../types";
 import {
   ArrowLeftIcon,
   CheckCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-export default function DocumentDetailPage({ params }: { params: any }) {
-  const resolvedParams = use(params);
+interface PageParams {
+  id: string;
+}
+
+export default function DocumentDetailPage({
+  params,
+}: {
+  params: Promise<PageParams>;
+}) {
   const { user } = useAuth();
   const router = useRouter();
   const [document, setDocument] = useState<Document | null>(null);
@@ -25,18 +32,22 @@ export default function DocumentDetailPage({ params }: { params: any }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Unwrap params using React.use()
+  const resolvedParams = use(params);
+  const documentId = resolvedParams.id;
+
   useEffect(() => {
     fetchDocumentAndHistory();
-  }, [resolvedParams.id]);
+  }, [documentId]);
 
   const fetchDocumentAndHistory = async () => {
     try {
-      const [docResponse, historyResponse] = await Promise.all([
-        getDocument(resolvedParams.id),
-        getDocumentHistory(resolvedParams.id),
+      const [doc, history] = await Promise.all([
+        getDocument(documentId),
+        getDocumentHistory(documentId),
       ]);
-      setDocument(docResponse.data);
-      setHistory(historyResponse.data);
+      setDocument(doc);
+      setHistory(history);
     } catch (err) {
       setError("Failed to fetch document details");
     } finally {
@@ -46,7 +57,7 @@ export default function DocumentDetailPage({ params }: { params: any }) {
 
   const handleApprove = async () => {
     try {
-      await approveDocument(resolvedParams.id);
+      await approveDocument(documentId);
       fetchDocumentAndHistory();
     } catch (err) {
       setError("Failed to approve document");
@@ -55,7 +66,7 @@ export default function DocumentDetailPage({ params }: { params: any }) {
 
   const handleReject = async () => {
     try {
-      await rejectDocument(resolvedParams.id);
+      await rejectDocument(documentId);
       fetchDocumentAndHistory();
     } catch (err) {
       setError("Failed to reject document");
@@ -97,7 +108,7 @@ export default function DocumentDetailPage({ params }: { params: any }) {
               </span>
             </p>
           </div>
-          {user?.role === "ADMIN" && document.status === "PENDING" && (
+          {document.status === "pending" && (
             <div className="space-x-2 flex">
               <button
                 onClick={handleApprove}
@@ -125,34 +136,35 @@ export default function DocumentDetailPage({ params }: { params: any }) {
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-4">Document History</h2>
           <div className="space-y-4">
-            {history.map((entry) => (
-              <div
-                key={entry._id}
-                className="border-l-4 border-indigo-500 pl-4 py-2"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-medium capitalize">{entry.action}</p>
-                    <p className="text-sm text-gray-600">
-                      User: {entry.user?.name || "Unknown"} (
-                      {entry.user?.email || "No email"})
-                    </p>
+            {history.map((entry) => {
+              const historyEntry = entry as HistoryEntry;
+              return (
+                <div
+                  key={historyEntry._id}
+                  className="border-l-4 border-indigo-500 pl-4 py-2"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium capitalize">
+                        {historyEntry.action}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        User: {historyEntry.user.name} (
+                        {historyEntry.user.email})
+                      </p>
+                    </div>
                     <p className="text-sm text-gray-500">
-                      User ID: {entry.user?._id || "N/A"}
+                      {new Date(historyEntry.timestamp).toLocaleString()}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-500">
-                    {new Date(entry.timestamp).toLocaleString()}
-                  </p>
+                  {historyEntry.blockchainTx && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Blockchain Tx: {historyEntry.blockchainTx}
+                    </p>
+                  )}
                 </div>
-                <p className="text-sm text-gray-500 mt-1">
-                  Blockchain Tx: {entry.blockchainTx}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  History ID: {entry._id}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -162,9 +174,9 @@ export default function DocumentDetailPage({ params }: { params: any }) {
 
 function getStatusColor(status: string) {
   switch (status) {
-    case "APPROVED":
+    case "approved":
       return "text-green-600";
-    case "REJECTED":
+    case "rejected":
       return "text-red-600";
     default:
       return "text-yellow-600";

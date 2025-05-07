@@ -148,6 +148,7 @@ export default function DocumentsPage() {
             <h3 className="text-lg font-semibold mb-2 text-gray-900">
               {doc.title}
             </h3>
+            
             <p className="text-gray-700 text-sm mb-2">
               Status:{" "}
               <span className={`font-medium ${getStatusColor(doc.status)}`}>
