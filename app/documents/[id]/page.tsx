@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import {
@@ -16,11 +16,8 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-export default function DocumentDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function DocumentDetailPage({ params }: { params: any }) {
+  const resolvedParams = use(params);
   const { user } = useAuth();
   const router = useRouter();
   const [document, setDocument] = useState<Document | null>(null);
@@ -30,13 +27,13 @@ export default function DocumentDetailPage({
 
   useEffect(() => {
     fetchDocumentAndHistory();
-  }, [params.id]);
+  }, [resolvedParams.id]);
 
   const fetchDocumentAndHistory = async () => {
     try {
       const [docData, historyData] = await Promise.all([
-        getDocument(params.id),
-        getDocumentHistory(params.id),
+        getDocument(resolvedParams.id),
+        getDocumentHistory(resolvedParams.id),
       ]);
       setDocument(docData);
       setHistory(historyData);
@@ -49,7 +46,7 @@ export default function DocumentDetailPage({
 
   const handleApprove = async () => {
     try {
-      await approveDocument(params.id);
+      await approveDocument(resolvedParams.id);
       fetchDocumentAndHistory();
     } catch (err) {
       setError("Failed to approve document");
@@ -58,7 +55,7 @@ export default function DocumentDetailPage({
 
   const handleReject = async () => {
     try {
-      await rejectDocument(params.id);
+      await rejectDocument(resolvedParams.id);
       fetchDocumentAndHistory();
     } catch (err) {
       setError("Failed to reject document");
