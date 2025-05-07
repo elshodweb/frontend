@@ -31,12 +31,12 @@ export default function DocumentDetailPage({ params }: { params: any }) {
 
   const fetchDocumentAndHistory = async () => {
     try {
-      const [docData, historyData] = await Promise.all([
+      const [docResponse, historyResponse] = await Promise.all([
         getDocument(resolvedParams.id),
         getDocumentHistory(resolvedParams.id),
       ]);
-      setDocument(docData);
-      setHistory(historyData);
+      setDocument(docResponse.data);
+      setHistory(historyResponse.data);
     } catch (err) {
       setError("Failed to fetch document details");
     } finally {
@@ -127,14 +127,18 @@ export default function DocumentDetailPage({ params }: { params: any }) {
           <div className="space-y-4">
             {history.map((entry) => (
               <div
-                key={entry.id}
+                key={entry._id}
                 className="border-l-4 border-indigo-500 pl-4 py-2"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-medium">{entry.action}</p>
+                    <p className="font-medium capitalize">{entry.action}</p>
                     <p className="text-sm text-gray-600">
-                      By User ID: {entry.userId}
+                      User: {entry.user?.name || "Unknown"} (
+                      {entry.user?.email || "No email"})
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      User ID: {entry.user?._id || "N/A"}
                     </p>
                   </div>
                   <p className="text-sm text-gray-500">
@@ -142,7 +146,10 @@ export default function DocumentDetailPage({ params }: { params: any }) {
                   </p>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">
-                  Blockchain Hash: {entry.blockchainHash}
+                  Blockchain Tx: {entry.blockchainTx}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  History ID: {entry._id}
                 </p>
               </div>
             ))}
